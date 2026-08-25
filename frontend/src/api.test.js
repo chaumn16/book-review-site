@@ -14,11 +14,18 @@ describe("api", () => {
     vi.restoreAllMocks();
   });
 
-  it("listBooks fetches /api/books and returns parsed json", async () => {
+  it("listBooks defaults to the ready catalog", async () => {
     mockFetchOnce(200, [{ id: 1, title: "Dune" }]);
     const result = await api.listBooks();
-    expect(global.fetch).toHaveBeenCalledWith("/api/books");
+    expect(global.fetch).toHaveBeenCalledWith("/api/books?status=ready");
     expect(result).toEqual([{ id: 1, title: "Dune" }]);
+  });
+
+  it("listBooks passes through an explicit status", async () => {
+    mockFetchOnce(200, [{ id: 2, title: "Still Cooking" }]);
+    const result = await api.listBooks("pending");
+    expect(global.fetch).toHaveBeenCalledWith("/api/books?status=pending");
+    expect(result).toEqual([{ id: 2, title: "Still Cooking" }]);
   });
 
   it("addBook posts JSON and returns the created book", async () => {

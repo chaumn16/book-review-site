@@ -38,6 +38,23 @@ body {
 }
 .add-link:hover { border-color: var(--accent); color: var(--accent); }
 
+.tabs { display: flex; gap: 0.4rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0.5rem 0.2rem;
+  margin-bottom: -1px;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.tab + .tab { margin-left: 0.9rem; }
+.tab:hover { color: var(--fg); }
+.tab-active { color: var(--accent); border-bottom-color: var(--accent); font-weight: bold; }
+
 .book-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

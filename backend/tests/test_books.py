@@ -48,6 +48,37 @@ def test_only_ready_books_are_listed(client):
     assert "status" not in books[0]
 
 
+def test_status_pending_lists_only_pending_books(client):
+    db = SessionLocal()
+    db.add(models.Book(title="Still Cooking", author="Someone", status="pending"))
+    db.add(models.Book(title="Broke", author="Someone Else", status="failed"))
+    db.add(models.Book(title="Done", author="A Third Person", status="ready", summary="A summary."))
+    db.commit()
+    db.close()
+
+    books = client.get("/api/books?status=pending").json()
+    assert [b["title"] for b in books] == ["Still Cooking"]
+    # Same shape as the ready list -- no status field, since the tab itself
+    # already tells the frontend what it's looking at.
+    assert "status" not in books[0]
+
+
+def test_status_pending_excludes_failed_books(client):
+    # 'failed' isn't a valid value for the tab and shouldn't leak into
+    # 'pending' either -- a failed book is only reachable by id.
+    db = SessionLocal()
+    db.add(models.Book(title="Broke", author="Someone Else", status="failed"))
+    db.commit()
+    db.close()
+
+    assert client.get("/api/books?status=pending").json() == []
+
+
+def test_status_invalid_value_is_rejected(client):
+    resp = client.get("/api/books?status=failed")
+    assert resp.status_code == 400
+
+
 def test_add_book_is_saved_pending_and_returned_immediately(client, mock_covers):
     # No generation call happens here at all -- see test_generation.py for
     # that. Only the cover lookup (not an LLM call) happens synchronously.

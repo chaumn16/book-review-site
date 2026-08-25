@@ -73,7 +73,10 @@ you want a cadence instead, wire the same commands into `cron`/`launchd` yoursel
    book as `status='pending'` and returns immediately — summary, chapters, and verdict
    are all `null`/empty at this point. (Cover art lookup is the one exception: it's a
    free public API call, not an LLM call, so it still happens synchronously here.) A
-   `pending` book isn't listed on the home page yet — see `test_only_ready_books_are_listed`.
+   `pending` book isn't in the main catalog yet — `GET /api/books` defaults to
+   `?status=ready`; pass `?status=pending` for the list of books still waiting (this is
+   what the home page's **Just Added** tab shows, next to the default **Library** tab) —
+   see `test_only_ready_books_are_listed` / `test_status_pending_lists_only_pending_books`.
 2. **You generate on your own schedule** by running:
    ```bash
    cd backend
