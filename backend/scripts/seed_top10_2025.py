@@ -21,6 +21,7 @@ SEED_BOOKS = [
     {
         "title": "Angel Down",
         "author": "Daniel Kraus",
+        "cover_url": "https://covers.openlibrary.org/b/id/15110807-M.jpg",
         "summary": (
             "A horror novel set in the trenches of World War I: a company of soldiers finds a "
             "wounded, otherworldly figure amid the wreckage of a crash in No Man's Land, and drags "
@@ -53,6 +54,7 @@ SEED_BOOKS = [
     {
         "title": "The Director",
         "author": "Daniel Kehlmann",
+        "cover_url": "https://upload.wikimedia.org/wikipedia/en/b/bb/The_Director_%28Kehlmann_novel%29_cover.jpg",
         "summary": (
             "A historical novel centered on G.W. Pabst, the celebrated Austrian film director who "
             "returned to Nazi Germany in 1939 after a trip abroad, and the moral compromises he made "
@@ -84,6 +86,7 @@ SEED_BOOKS = [
     {
         "title": "The Loneliness of Sonia and Sunny",
         "author": "Kiran Desai",
+        "cover_url": "https://covers.openlibrary.org/b/id/15110598-M.jpg",
         "summary": (
             "A sprawling love story following two young Indians — Sonia, an aspiring writer, and "
             "Sunny, adrift and searching for purpose — whose paths intersect and diverge across India, "
@@ -114,6 +117,7 @@ SEED_BOOKS = [
     {
         "title": "The Sisters",
         "author": "Jonas Hassen Khemiri",
+        "cover_url": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1728484010i/217387701.jpg",
         "summary": (
             "A multigenerational family saga from Swedish author Jonas Hassen Khemiri, following a "
             "family of sisters whose lives, secrets, and inherited histories are examined through "
@@ -144,6 +148,7 @@ SEED_BOOKS = [
     {
         "title": "Stone Yard Devotional",
         "author": "Charlotte Wood",
+        "cover_url": "https://covers.openlibrary.org/b/id/14715815-M.jpg",
         "summary": (
             "An unnamed woman leaves her life and job behind to retreat to a remote monastery in rural "
             "New South Wales, seeking quiet and distance from a world she can no longer bear — "
@@ -174,6 +179,7 @@ SEED_BOOKS = [
     {
         "title": "A Marriage at Sea: A True Story of Love, Obsession, and Shipwreck",
         "author": "Sophie Elmhirst",
+        "cover_url": "https://covers.openlibrary.org/b/isbn/9780593854280-M.jpg",
         "summary": (
             "The true story of Maurice and Maralyn Bailey, a British couple who sold their possessions "
             "in the 1970s to sail around the world, only to have their boat sunk by a whale in the "
@@ -203,6 +209,7 @@ SEED_BOOKS = [
     {
         "title": "Mother Emanuel",
         "author": "Kevin Sack",
+        "cover_url": "https://images3.penguinrandomhouse.com/cover/9781524761318",
         "summary": (
             "A sweeping history of Charleston's Mother Emanuel AME Church — one of the oldest Black "
             "churches in the American South — tracing its origins in slavery and its role in the fight "
@@ -232,6 +239,7 @@ SEED_BOOKS = [
     {
         "title": "Mother Mary Comes to Me",
         "author": "Arundhati Roy",
+        "cover_url": "https://covers.openlibrary.org/b/id/14981460-M.jpg",
         "summary": (
             "Arundhati Roy's memoir of her fraught, formative relationship with her mother, Mary Roy — "
             "a fierce, unconventional educator and activist in Kerala who fought a landmark legal battle "
@@ -262,6 +270,7 @@ SEED_BOOKS = [
     {
         "title": "There Is No Place for Us: Working and Homeless in America",
         "author": "Brian Goldstone",
+        "cover_url": "https://images3.penguinrandomhouse.com/cover/9780593237168",
         "summary": (
             "An investigative account following several families in Atlanta who work full-time jobs yet "
             "remain homeless — sleeping in extended-stay motels, cars, or shelters — exposing what "
@@ -291,6 +300,7 @@ SEED_BOOKS = [
     {
         "title": "Wild Thing: A Life of Paul Gauguin",
         "author": "Sue Prideaux",
+        "cover_url": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1732330844i/218569898.jpg",
         "summary": (
             "A biography of the French Post-Impressionist painter Paul Gauguin, tracing his path from a "
             "failed stockbroker to one of the most influential — and most controversial — artists of the "
@@ -333,14 +343,20 @@ def main():
                 .first()
             )
             if existing:
-                # Idempotent backfill: fills in a verdict for books seeded
-                # before this field existed, without touching anything else
-                # (in case the summary/chapters were hand-edited since).
+                # Idempotent backfill: fills in fields added to this script
+                # after a book was first seeded, without touching anything
+                # else (in case the summary/chapters were hand-edited since).
+                changed = []
                 if not existing.verdict_label:
                     existing.verdict_label = entry["verdict"]["label"]
                     existing.verdict_reason = entry["verdict"]["reason"]
+                    changed.append("verdict")
+                if not existing.cover_url and entry.get("cover_url"):
+                    existing.cover_url = entry["cover_url"]
+                    changed.append("cover")
+                if changed:
                     db.commit()
-                    print(f"updated verdict for existing book: {entry['title']!r}")
+                    print(f"updated {'+'.join(changed)} for existing book: {entry['title']!r}")
                     updated += 1
                 else:
                     print(f"skip (already present): {entry['title']!r} by {entry['author']}")
@@ -352,6 +368,7 @@ def main():
                 author=entry["author"],
                 summary=entry["summary"],
                 status="ready",
+                cover_url=entry.get("cover_url"),
                 verdict_label=entry["verdict"]["label"],
                 verdict_reason=entry["verdict"]["reason"],
             )
@@ -373,7 +390,7 @@ def main():
     finally:
         db.close()
 
-    print(f"\nDone. {added} added, {updated} updated with a backfilled verdict, {skipped} already up to date.")
+    print(f"\nDone. {added} added, {updated} updated with backfilled fields, {skipped} already up to date.")
 
 
 if __name__ == "__main__":
