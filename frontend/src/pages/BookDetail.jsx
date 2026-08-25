@@ -18,6 +18,15 @@ export default function BookDetail() {
 
   useEffect(load, [id]);
 
+  // Generation happens out-of-band (someone has to run
+  // scripts/generate_books.py) -- poll while pending so this page updates
+  // itself once that's happened, instead of requiring a manual reload.
+  useEffect(() => {
+    if (book?.status !== "pending") return;
+    const interval = setInterval(load, 8000);
+    return () => clearInterval(interval);
+  }, [book?.status, id]);
+
   async function retry() {
     setRetrying(true);
     try {
@@ -54,7 +63,12 @@ export default function BookDetail() {
           </button>
         </div>
       )}
-      {book.status === "pending" && <p className="notice">Generating summary…</p>}
+      {book.status === "pending" && (
+        <p className="notice">
+          Waiting to be generated — this happens when the site owner runs the generation
+          script. This page checks automatically every few seconds.
+        </p>
+      )}
 
       {book.summary && (
         <section>

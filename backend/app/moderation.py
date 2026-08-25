@@ -1,9 +1,10 @@
 """Async comment moderation.
 
-Unlike app/llm.py, this module never imports the `anthropic` SDK and never
-touches ANTHROPIC_API_KEY. It shells out to the `claude` Code CLI instead --
-i.e. it runs under *your* logged-in Claude account/subscription, the same way
-typing a prompt into Claude Code would. There is no API billing path here.
+This module never imports the `anthropic` SDK and never touches
+ANTHROPIC_API_KEY. It shells out to the `claude` Code CLI instead -- i.e. it
+runs under *your* logged-in Claude account/subscription, the same way typing
+a prompt into Claude Code would. There is no API billing path here. (See
+app/generation.py for the same pattern applied to book generation.)
 
 Nothing in the request/response cycle (see app/routers/comments.py) calls
 this module. A comment is written with reviewed=False and shown immediately;
@@ -16,7 +17,7 @@ import subprocess
 from typing import Callable, Optional
 
 from . import models
-from .llm import _extract_json
+from .util import extract_json
 
 Classifier = Callable[[str], dict]
 
@@ -68,7 +69,7 @@ def make_cli_classifier(model: Optional[str] = None) -> Classifier:
             raise ClaudeCliError(
                 f"`claude` CLI exited {result.returncode}: {result.stderr.strip() or '(no stderr)'}"
             )
-        return _extract_json(result.stdout)
+        return extract_json(result.stdout)
 
     return classify
 
