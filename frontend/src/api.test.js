@@ -35,6 +35,25 @@ describe("api", () => {
     expect(result.id).toBe(1);
   });
 
+  it("addComment sends rating: null by default, or the given rating", async () => {
+    mockFetchOnce(201, { id: 1, author_name: "Alice", body: "Great!", rating: null });
+    await api.addComment(1, "Alice", "Great!");
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/api/books/1/comments",
+      expect.objectContaining({
+        body: JSON.stringify({ author_name: "Alice", body: "Great!", rating: null }),
+      })
+    );
+
+    await api.addComment(1, "Alice", "Great!", 5);
+    expect(global.fetch).toHaveBeenLastCalledWith(
+      "/api/books/1/comments",
+      expect.objectContaining({
+        body: JSON.stringify({ author_name: "Alice", body: "Great!", rating: 5 }),
+      })
+    );
+  });
+
   it("throws an Error carrying the server-provided message on failure", async () => {
     mockFetchOnce(404, { error: "Book not found" });
     await expect(api.getBook(999)).rejects.toThrow("Book not found");

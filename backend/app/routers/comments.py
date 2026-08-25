@@ -31,6 +31,7 @@ def add_comment(book_id: int, payload: schemas.CommentCreate, db: Session = Depe
         book_id=book_id,
         author_name=payload.author_name.strip(),
         body=payload.body.strip(),
+        rating=payload.rating,
         status="visible",
         reviewed=False,
     )

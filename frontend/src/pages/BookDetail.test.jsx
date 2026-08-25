@@ -50,6 +50,41 @@ describe("BookDetail", () => {
     expect(screen.getByText("The Atreides arrive on Arrakis.")).toBeInTheDocument();
   });
 
+  it("renders the verdict callout with its reasoning", async () => {
+    api.getBook.mockResolvedValue({
+      ...readyBook,
+      verdict_label: "depends",
+      verdict_reason: "Great if you like slow-burn plots, not if you want action.",
+    });
+    render(<BookDetail />);
+
+    expect(await screen.findByText(/depends/i)).toBeInTheDocument();
+    expect(screen.getByText("Great if you like slow-burn plots, not if you want action.")).toBeInTheDocument();
+  });
+
+  it("renders no verdict callout when the book has none", async () => {
+    api.getBook.mockResolvedValue(readyBook);
+    render(<BookDetail />);
+
+    await screen.findByText("Dune");
+    expect(screen.queryByText(/worth it|depends|skip/i)).not.toBeInTheDocument();
+  });
+
+  it("renders the average rating in the header when present", async () => {
+    api.getBook.mockResolvedValue({ ...readyBook, average_rating: 3.7, rating_count: 9 });
+    render(<BookDetail />);
+
+    expect(await screen.findByText("3.7 (9)")).toBeInTheDocument();
+  });
+
+  it("renders a cover image when the book has one, a placeholder otherwise", async () => {
+    api.getBook.mockResolvedValue({ ...readyBook, cover_url: "https://covers.example.com/dune.jpg" });
+    render(<BookDetail />);
+
+    const img = await screen.findByRole("img", { name: "Cover of Dune" });
+    expect(img).toHaveAttribute("src", "https://covers.example.com/dune.jpg");
+  });
+
   it("shows a pending notice while generation is still running", async () => {
     api.getBook.mockResolvedValue({ ...readyBook, status: "pending", summary: null, chapters: [] });
     render(<BookDetail />);

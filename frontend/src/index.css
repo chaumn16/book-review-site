@@ -40,8 +40,11 @@ body {
 
 .book-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+@media (max-width: 520px) {
+  .book-grid { grid-template-columns: 1fr; }
 }
 
 .book-card {
@@ -59,10 +62,96 @@ body {
 .author { color: var(--muted); font-style: italic; margin: 0.1rem 0 0.6rem; }
 .meta { font-size: 0.85rem; color: var(--muted); margin: 0; }
 
-.status { text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.03em; padding: 0.1rem 0.4rem; border-radius: 4px; background: var(--border); }
-.status-ready { background: #d9ead3; }
-.status-pending { background: #fff2cc; }
-.status-failed { background: #f4cccc; }
+.book-cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.85rem;
+  background: var(--border);
+}
+.book-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.book-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, var(--border), var(--card));
+}
+
+.book-detail-header {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+.book-cover-large {
+  width: 120px;
+  aspect-ratio: 2 / 3;
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+.book-cover-large .book-cover-placeholder { font-size: 2rem; }
+.book-detail-header h1 { margin: 0 0 0.25rem; }
+.book-detail-header .author { margin: 0 0 0.4rem; }
+
+/* Verdict: is this worth reading? */
+.verdict-pill {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  margin-bottom: 0.4rem;
+}
+.verdict-worth_it { background: #d9ead3; color: #2c5e1a; }
+.verdict-depends { background: #fff2cc; color: #7a5c00; }
+.verdict-skip { background: #f4cccc; color: #8a1f1f; }
+
+.verdict-callout {
+  border: 1px solid var(--border);
+  border-left-width: 5px;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin: 1.25rem 0;
+}
+.verdict-callout.verdict-worth_it { border-left-color: #4f8a3d; }
+.verdict-callout.verdict-depends { border-left-color: #c9a227; }
+.verdict-callout.verdict-skip { border-left-color: #b23c3c; }
+.verdict-callout-label { font-weight: bold; }
+.verdict-callout p { margin: 0.4rem 0 0; line-height: 1.5; }
+
+/* Read-only average rating */
+.star-rating { display: inline-flex; align-items: baseline; gap: 0.3rem; font-size: 0.85rem; color: var(--muted); }
+.star-rating-stars { color: var(--accent); letter-spacing: 0.05em; }
+
+/* Interactive rating input in the comment form */
+.rating-input { display: flex; align-items: center; gap: 0.15rem; }
+.rating-input button {
+  background: none;
+  border: none;
+  padding: 0;
+  width: auto;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--accent);
+  cursor: pointer;
+}
+.rating-input .star-off { color: var(--border); }
+.rating-input-value { margin-left: 0.4rem; font-size: 0.85rem; color: var(--muted); }
+.rating-clear {
+  background: none;
+  border: none;
+  padding: 0;
+  width: auto;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.comment-rating { color: var(--accent); margin-left: 0.5rem; font-size: 0.85rem; }
 
 .add-book-form, .comment-form {
   display: flex;
@@ -98,7 +187,6 @@ button:disabled { opacity: 0.6; cursor: default; }
 
 .notice { padding: 0.5rem 0.8rem; border-radius: 6px; background: var(--border); font-size: 0.9rem; }
 .notice-ok { background: #d9ead3; }
-.notice-blocked { background: #f4cccc; }
 .notice-error { background: #f4cccc; }
 
 .summary { line-height: 1.6; }

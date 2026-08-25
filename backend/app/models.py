@@ -18,6 +18,11 @@ class Book(Base):
     author = Column(String, nullable=False)
     summary = Column(Text, nullable=True)
     status = Column(String, nullable=False, default="pending")  # pending | ready | failed
+    cover_url = Column(String, nullable=True)  # best-effort, from Open Library; may be None
+    # The model's own "is this worth reading" judgment, generated in the same
+    # call as the summary. verdict_label: worth_it | depends | skip.
+    verdict_label = Column(String, nullable=True)
+    verdict_reason = Column(Text, nullable=True)
     created_at = Column(DateTime, default=utcnow, nullable=False)
 
     chapters = relationship(
@@ -48,6 +53,7 @@ class Comment(Base):
     book_id = Column(Integer, ForeignKey("books.id", ondelete="CASCADE"), nullable=False)
     author_name = Column(String, nullable=False)
     body = Column(Text, nullable=False)
+    rating = Column(Integer, nullable=True)  # optional, 1-5; feeds the book's average rating
     status = Column(String, nullable=False, default="visible")  # visible | removed
     # False until scripts/review_comments.py has classified it. Comments are
     # shown while reviewed=False -- moderation happens async, after the fact.
