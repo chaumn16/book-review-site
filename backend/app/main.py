@@ -13,9 +13,16 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Book Review API")
 
+# Comma-separated list of allowed origins, e.g.
+# "https://your-frontend.vercel.app,https://yourdomain.com"
+# Defaults to "*" for local dev; set FRONTEND_ORIGINS explicitly in production
+# so the API isn't open to every origin on the internet.
+_origins_env = os.getenv("FRONTEND_ORIGINS")
+_allow_origins = [o.strip() for o in _origins_env.split(",")] if _origins_env else ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_allow_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

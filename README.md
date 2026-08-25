@@ -126,6 +126,14 @@ states, form submission, retry-after-failure, and comments posting immediately w
 blocking. Not run in this environment (no Node.js available here) but written against
 the exact component markup, so they should pass as-is; run `npm test` locally to confirm.
 
+## Deploying
+
+See [DEPLOY.md](DEPLOY.md) for the full walkthrough (Vercel + Render + Neon Postgres,
+with `scripts/review_comments.py` still run from your own machine against the deployed
+database). `DATABASE_URL` and `FRONTEND_ORIGINS` are already wired up via environment
+variables for exactly this; no code changes needed to go from local SQLite to a
+deployed Postgres instance.
+
 ## Notes / things to harden before this is "real"
 
 - **No auth** — comments are posted with a free-text name, no accounts. Fine for a

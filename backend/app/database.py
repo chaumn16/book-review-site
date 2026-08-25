@@ -5,6 +5,10 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data.sqlite")
+# Some Postgres providers (Render, old Heroku-style URLs) hand out
+# "postgres://" -- SQLAlchemy 1.4+ requires the "postgresql://" scheme.
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 _connect_args = {}
 _engine_kwargs = {}
