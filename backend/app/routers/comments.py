@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from .. import llm, models, schemas
+from .. import models, schemas
 from ..database import get_db
 
 router = APIRouter(prefix="/api/books/{book_id}/comments", tags=["comments"])
@@ -23,29 +23,18 @@ def add_comment(book_id: int, payload: schemas.CommentCreate, db: Session = Depe
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
 
-    try:
-        result = llm.moderate_comment(payload.body)
-        allowed, reason = result["allowed"], result.get("reason")
-    except Exception:
-        # Fail closed: if moderation itself errors, hold the comment for
-        # review rather than silently publishing unmoderated content.
-        allowed, reason = False, "Moderation check failed; held for review."
-
+    # No moderation call here. The comment is visible right away;
+    # scripts/review_comments.py screens it asynchronously (via the `claude`
+    # CLI, run under your own account) and flips status to 'removed' if
+    # flagged. See app/moderation.py.
     comment = models.Comment(
         book_id=book_id,
         author_name=payload.author_name.strip(),
         body=payload.body.strip(),
-        status="visible" if allowed else "removed",
-        moderation_reason=reason,
+        status="visible",
+        reviewed=False,
     )
     db.add(comment)
     db.commit()
     db.refresh(comment)
-
-    if not allowed:
-        raise HTTPException(
-            status_code=422,
-            detail={"error": "Comment removed by moderation", "reason": reason},
-        )
-
     return comment

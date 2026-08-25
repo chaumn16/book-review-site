@@ -73,11 +73,28 @@ def test_delete_book(client, mock_llm):
     assert client.get(f"/api/books/{created['id']}").status_code == 404
 
 
-def test_book_list_reflects_visible_comment_count(client, mock_llm):
+def test_book_list_comment_count_is_immediate_then_drops_after_moderation(client, mock_llm):
+    from app.database import SessionLocal
+    from app.moderation import review_pending_comments
+
     created = client.post("/api/books", json={"title": "Dune", "author": "Frank Herbert"}).json()
     client.post(f"/api/books/{created['id']}/comments", json={"author_name": "Alice", "body": "Loved it!"})
     client.post(f"/api/books/{created['id']}/comments", json={"author_name": "Bob", "body": "this has badword in it"})
 
+    # Both comments count right away -- moderation is async, not on-submit.
     books = client.get("/api/books").json()
-    # Only the allowed comment should count; the blocked one shouldn't.
+    assert books[0]["comment_count"] == 2
+
+    # Once the review process (scripts/review_comments.py, tested in
+    # isolation in test_moderation.py) runs and flags Bob's comment...
+    def fake_classify(body):
+        flagged = "badword" in body.lower()
+        return {"allowed": not flagged, "reason": "flagged language" if flagged else None}
+
+    db = SessionLocal()
+    review_pending_comments(db, classify=fake_classify)
+    db.close()
+
+    # ...it drops out of the visible count.
+    books = client.get("/api/books").json()
     assert books[0]["comment_count"] == 1

@@ -50,21 +50,40 @@ describe("CommentSection", () => {
     expect(api.listComments).toHaveBeenCalledTimes(2);
   });
 
-  it("shows a moderation notice and does not list a blocked comment", async () => {
-    api.listComments.mockResolvedValue([]);
-    const err = new Error("Comment removed by moderation");
-    err.status = 422;
-    err.body = { reason: "harassment" };
-    api.addComment.mockRejectedValue(err);
+  it("posts even harsh-sounding content immediately -- moderation isn't synchronous", async () => {
+    // There's no inline moderation call anymore: posting only fails for
+    // validation errors or a missing book, never because of content.
+    api.listComments
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { id: 3, author_name: "Troll", body: "this book was trash", created_at: "2024-01-03T00:00:00Z" },
+      ]);
+    api.addComment.mockResolvedValue({ id: 3, author_name: "Troll", body: "this book was trash" });
 
     const user = userEvent.setup();
     render(<CommentSection bookId={1} />);
     await screen.findByText(/no comments yet/i);
 
     await user.type(screen.getByPlaceholderText(/your name/i), "Troll");
-    await user.type(screen.getByPlaceholderText(/what did you think/i), "bad stuff");
+    await user.type(screen.getByPlaceholderText(/what did you think/i), "this book was trash");
     await user.click(screen.getByRole("button", { name: /post comment/i }));
 
-    expect(await screen.findByText(/comment removed by moderation: harassment/i)).toBeInTheDocument();
+    expect(await screen.findByText("Comment posted.")).toBeInTheDocument();
+    expect(await screen.findByText("this book was trash")).toBeInTheDocument();
+  });
+
+  it("shows a generic error notice when posting fails", async () => {
+    api.listComments.mockResolvedValue([]);
+    api.addComment.mockRejectedValue(new Error("Book not found"));
+
+    const user = userEvent.setup();
+    render(<CommentSection bookId={1} />);
+    await screen.findByText(/no comments yet/i);
+
+    await user.type(screen.getByPlaceholderText(/your name/i), "Alice");
+    await user.type(screen.getByPlaceholderText(/what did you think/i), "hello");
+    await user.click(screen.getByRole("button", { name: /post comment/i }));
+
+    expect(await screen.findByText("Book not found")).toBeInTheDocument();
   });
 });
