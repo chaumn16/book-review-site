@@ -4,22 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from .. import covers, llm, models, schemas
+from .. import covers, models, schemas
 from ..database import get_db
 
 router = APIRouter(prefix="/api/books", tags=["books"])
-
-
-def _save_chapters(db: Session, book_id: int, chapters: list[dict]) -> None:
-    for ch in chapters:
-        db.add(
-            models.ChapterHighlight(
-                book_id=book_id,
-                chapter_number=ch["chapter_number"],
-                chapter_title=ch.get("chapter_title"),
-                highlight=ch["highlight"],
-            )
-        )
 
 
 def _comment_count(db: Session, book_id: int) -> int:
@@ -102,32 +90,19 @@ def get_book(book_id: int, db: Session = Depends(get_db)):
 
 @router.post("", response_model=schemas.BookDetail, status_code=201)
 def add_book(payload: schemas.BookCreate, db: Session = Depends(get_db)):
-    book = models.Book(title=payload.title.strip(), author=payload.author.strip(), status="pending")
+    # No generation call here. The book is saved as 'pending' and returned
+    # immediately; scripts/generate_books.py fills in the summary, chapter
+    # highlights, and verdict asynchronously (via the `claude` CLI, run
+    # under your own account) and flips status to 'ready'. See
+    # app/generation.py. Cover lookup is unrelated (not an LLM call, just a
+    # free public API) so it still happens synchronously, right here.
+    book = models.Book(
+        title=payload.title.strip(),
+        author=payload.author.strip(),
+        status="pending",
+        cover_url=covers.find_cover_url(payload.title.strip(), payload.author.strip()),
+    )
     db.add(book)
-    db.commit()
-    db.refresh(book)
-
-    try:
-        content = llm.generate_book_content(book.title, book.author)
-    except Exception as exc:
-        book.status = "failed"
-        db.commit()
-        raise HTTPException(
-            status_code=502,
-            detail={
-                "error": "Generation failed, book saved as 'failed'.",
-                "book_id": book.id,
-                "retry_endpoint": f"/api/books/{book.id}/regenerate",
-            },
-        ) from exc
-
-    _save_chapters(db, book.id, content["chapters"])
-    book.summary = content["summary"]
-    book.status = "ready"
-    book.verdict_label = content["verdict"]["label"]
-    book.verdict_reason = content["verdict"]["reason"]
-    # Best-effort; find_cover_url() never raises, so this can't fail the request.
-    book.cover_url = covers.find_cover_url(book.title, book.author)
     db.commit()
     db.refresh(book)
     return _to_detail(db, book)
@@ -135,23 +110,16 @@ def add_book(payload: schemas.BookCreate, db: Session = Depends(get_db)):
 
 @router.post("/{book_id}/regenerate", response_model=schemas.BookDetail)
 def regenerate_book(book_id: int, db: Session = Depends(get_db)):
+    """Queue a book for (re)generation -- doesn't generate anything itself.
+    Existing summary/chapters/verdict are left as-is until
+    scripts/generate_books.py actually overwrites them; only the status
+    flips, which is what makes the book page show "Generating..." again.
+    """
     book = db.get(models.Book, book_id)
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
 
-    try:
-        content = llm.generate_book_content(book.title, book.author)
-    except Exception as exc:
-        book.status = "failed"
-        db.commit()
-        raise HTTPException(status_code=502, detail="Generation failed again.") from exc
-
-    db.query(models.ChapterHighlight).filter(models.ChapterHighlight.book_id == book.id).delete()
-    _save_chapters(db, book.id, content["chapters"])
-    book.summary = content["summary"]
-    book.status = "ready"
-    book.verdict_label = content["verdict"]["label"]
-    book.verdict_reason = content["verdict"]["reason"]
+    book.status = "pending"
     if not book.cover_url:
         book.cover_url = covers.find_cover_url(book.title, book.author)
     db.commit()

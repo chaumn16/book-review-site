@@ -88,7 +88,39 @@ describe("BookDetail", () => {
   it("shows a pending notice while generation is still running", async () => {
     api.getBook.mockResolvedValue({ ...readyBook, status: "pending", summary: null, chapters: [] });
     render(<BookDetail />);
-    expect(await screen.findByText(/generating summary/i)).toBeInTheDocument();
+    expect(await screen.findByText(/waiting to be generated/i)).toBeInTheDocument();
+  });
+
+  it("polls while pending and picks up the book once it's ready", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    api.getBook
+      .mockResolvedValueOnce({ ...readyBook, status: "pending", summary: null, chapters: [] })
+      .mockResolvedValueOnce(readyBook);
+
+    render(<BookDetail />);
+    await screen.findByText(/waiting to be generated/i);
+    expect(api.getBook).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(8000);
+
+    expect(api.getBook).toHaveBeenCalledTimes(2);
+    expect(await screen.findByText("A desert planet epic.")).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  it("stops polling once the book is no longer pending", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    api.getBook.mockResolvedValue(readyBook);
+
+    render(<BookDetail />);
+    await screen.findByText("A desert planet epic.");
+    expect(api.getBook).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(20000);
+    expect(api.getBook).toHaveBeenCalledTimes(1); // no extra polling once ready
+
+    vi.useRealTimers();
   });
 
   it("shows an error message when the book fails to load", async () => {

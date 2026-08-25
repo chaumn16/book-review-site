@@ -32,8 +32,10 @@ describe("AddBook", () => {
     expect(api.addBook).toHaveBeenCalledWith("Dune", "Frank Herbert");
   });
 
-  it("shows an error message and does not navigate when generation fails", async () => {
-    api.addBook.mockRejectedValue(new Error("Generation failed"));
+  it("shows an error message and does not navigate when the request fails", async () => {
+    // Posting only fails for validation errors now -- generation itself is
+    // async and can't fail this request (see app/generation.py instead).
+    api.addBook.mockRejectedValue(new Error("Network error"));
     const user = userEvent.setup();
     render(<AddBook />);
 
@@ -41,7 +43,7 @@ describe("AddBook", () => {
     await user.type(screen.getByLabelText(/author/i), "Frank Herbert");
     await user.click(screen.getByRole("button", { name: /add book/i }));
 
-    expect(await screen.findByText("Generation failed")).toBeInTheDocument();
+    expect(await screen.findByText("Network error")).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

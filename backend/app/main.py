@@ -33,4 +33,7 @@ app.include_router(comments.router)
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "has_api_key": bool(os.getenv("ANTHROPIC_API_KEY"))}
+    # No API key to report on anymore: book generation and comment
+    # moderation both run out-of-band via scripts/*.py using the `claude`
+    # CLI, not this process. This server never calls an LLM directly.
+    return {"ok": True}
