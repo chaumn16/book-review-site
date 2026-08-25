@@ -1,0 +1,10 @@
+node_modules/
+dist/
+backend/data.sqlite
+backend/data.sqlite-*
+backend/.env
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.pytest_cache/
+.env
