@@ -1,4 +1,8 @@
-const BASE = "/api";
+// In dev, "/api" is proxied to the backend by vite.config.js. In production,
+// the frontend and backend are typically on different domains (e.g. Vercel +
+// Render), so set VITE_API_BASE_URL at build time to the deployed backend's
+// full URL, e.g. "https://your-backend.onrender.com/api".
+const BASE = import.meta.env.VITE_API_BASE_URL || "/api";
 
 async function handle(res) {
   if (!res.ok) {
