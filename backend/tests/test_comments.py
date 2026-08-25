@@ -37,3 +37,25 @@ def test_comment_missing_fields_is_rejected(client, mock_llm):
     book = _make_book(client)
     resp = client.post(f"/api/books/{book['id']}/comments", json={"author_name": "", "body": ""})
     assert resp.status_code == 422
+
+
+def test_comment_rating_is_optional_and_stored(client, mock_llm):
+    book = _make_book(client)
+    resp = client.post(
+        f"/api/books/{book['id']}/comments",
+        json={"author_name": "Alice", "body": "Great book!", "rating": 5},
+    )
+    assert resp.status_code == 201
+    assert resp.json()["rating"] == 5
+
+    unrated = client.post(f"/api/books/{book['id']}/comments", json={"author_name": "Bob", "body": "No rating."})
+    assert unrated.json()["rating"] is None
+
+
+def test_comment_rating_out_of_range_is_rejected(client, mock_llm):
+    book = _make_book(client)
+    resp = client.post(
+        f"/api/books/{book['id']}/comments",
+        json={"author_name": "Alice", "body": "Great book!", "rating": 6},
+    )
+    assert resp.status_code == 422

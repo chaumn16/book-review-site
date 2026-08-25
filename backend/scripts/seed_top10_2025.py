@@ -21,6 +21,7 @@ SEED_BOOKS = [
     {
         "title": "Angel Down",
         "author": "Daniel Kraus",
+        "cover_url": "https://covers.openlibrary.org/b/id/15110807-M.jpg",
         "summary": (
             "A horror novel set in the trenches of World War I: a company of soldiers finds a "
             "wounded, otherworldly figure amid the wreckage of a crash in No Man's Land, and drags "
@@ -43,10 +44,17 @@ SEED_BOOKS = [
             (7, "Breaking Point", "Violence within the trench mirrors the violence outside it as the soldiers' plan spirals."),
             (8, "Aftermath", "The novel closes on the human cost of trying to control something beyond comprehension."),
         ],
+        "verdict": {
+            "label": "depends",
+            "reason": (
+                "A gripping, inventive premise for horror and war-fiction fans, but the graphic violence and unrelenting bleakness make it a hard sell if that's not already your genre."
+            ),
+        },
     },
     {
         "title": "The Director",
         "author": "Daniel Kehlmann",
+        "cover_url": "https://upload.wikimedia.org/wikipedia/en/b/bb/The_Director_%28Kehlmann_novel%29_cover.jpg",
         "summary": (
             "A historical novel centered on G.W. Pabst, the celebrated Austrian film director who "
             "returned to Nazi Germany in 1939 after a trip abroad, and the moral compromises he made "
@@ -68,10 +76,17 @@ SEED_BOOKS = [
             (7, "Reckoning", "As the war turns and the regime's crimes become undeniable, Pabst confronts what he's become."),
             (8, "Legacy", "The novel closes on the ambiguous historical judgment of a talented man who chose survival and status over resistance."),
         ],
+        "verdict": {
+            "label": "worth_it",
+            "reason": (
+                "A sharp, unsettling character study of moral compromise that rewards readers interested in WWII history and literary fiction, even without prior knowledge of Pabst's films."
+            ),
+        },
     },
     {
         "title": "The Loneliness of Sonia and Sunny",
         "author": "Kiran Desai",
+        "cover_url": "https://covers.openlibrary.org/b/id/15110598-M.jpg",
         "summary": (
             "A sprawling love story following two young Indians — Sonia, an aspiring writer, and "
             "Sunny, adrift and searching for purpose — whose paths intersect and diverge across India, "
@@ -92,10 +107,17 @@ SEED_BOOKS = [
             (7, "Reckoning with Family", "Both confront what their parents and homelands expect of them."),
             (8, "Return", "The novel moves toward a reunion shaped by everything that's happened in between."),
         ],
+        "verdict": {
+            "label": "worth_it",
+            "reason": (
+                "Desai's long-awaited follow-up delivers the same emotional precision and social insight as The Inheritance of Loss; especially worth it if you enjoy slow-building, character-driven literary fiction."
+            ),
+        },
     },
     {
         "title": "The Sisters",
         "author": "Jonas Hassen Khemiri",
+        "cover_url": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1728484010i/217387701.jpg",
         "summary": (
             "A multigenerational family saga from Swedish author Jonas Hassen Khemiri, following a "
             "family of sisters whose lives, secrets, and inherited histories are examined through "
@@ -116,10 +138,17 @@ SEED_BOOKS = [
             (7, "Confrontation", "The sisters address what's been avoided for years."),
             (8, "Aftermath", "The novel closes on a reconfigured, if not fully resolved, family bond."),
         ],
+        "verdict": {
+            "label": "depends",
+            "reason": (
+                "Khemiri's structural playfulness and multigenerational family drama will appeal to readers who enjoy literary puzzle-box narratives, but the fragmented, multi-perspective structure asks for patience."
+            ),
+        },
     },
     {
         "title": "Stone Yard Devotional",
         "author": "Charlotte Wood",
+        "cover_url": "https://covers.openlibrary.org/b/id/14715815-M.jpg",
         "summary": (
             "An unnamed woman leaves her life and job behind to retreat to a remote monastery in rural "
             "New South Wales, seeking quiet and distance from a world she can no longer bear — "
@@ -140,10 +169,17 @@ SEED_BOOKS = [
             (7, "Reckoning", "Old guilt and grief come to a head against the backdrop of the plague."),
             (8, "Stillness", "The novel ends in quiet, unresolved reflection rather than easy answers."),
         ],
+        "verdict": {
+            "label": "depends",
+            "reason": (
+                "A beautifully spare, meditative novel that Booker judges loved, but its slow pace and lack of plot momentum mean it's best suited to readers who want interiority over incident."
+            ),
+        },
     },
     {
         "title": "A Marriage at Sea: A True Story of Love, Obsession, and Shipwreck",
         "author": "Sophie Elmhirst",
+        "cover_url": "https://covers.openlibrary.org/b/isbn/9780593854280-M.jpg",
         "summary": (
             "The true story of Maurice and Maralyn Bailey, a British couple who sold their possessions "
             "in the 1970s to sail around the world, only to have their boat sunk by a whale in the "
@@ -163,10 +199,17 @@ SEED_BOOKS = [
             (7, "Aftermath", "Elmhirst traces what survival cost them, and what it meant for their marriage afterward."),
             (8, "Legacy", "The book closes on how the Baileys' ordeal came to be remembered."),
         ],
+        "verdict": {
+            "label": "worth_it",
+            "reason": (
+                "A tightly told, genuinely gripping survival story that doubles as an unusually honest portrait of a marriage -- accessible even if you don't normally read nonfiction."
+            ),
+        },
     },
     {
         "title": "Mother Emanuel",
         "author": "Kevin Sack",
+        "cover_url": "https://images3.penguinrandomhouse.com/cover/9781524761318",
         "summary": (
             "A sweeping history of Charleston's Mother Emanuel AME Church — one of the oldest Black "
             "churches in the American South — tracing its origins in slavery and its role in the fight "
@@ -186,10 +229,17 @@ SEED_BOOKS = [
             (7, "Forgiveness and Fury", "The community's public response, including the widely covered forgiveness of the shooter."),
             (8, "Aftermath", "The church and Charleston's reckoning with race and history in the years since."),
         ],
+        "verdict": {
+            "label": "worth_it",
+            "reason": (
+                "A meticulously reported, important history that goes well beyond the 2015 shooting most readers already know about -- essential if you want to understand the church and community, not just the tragedy."
+            ),
+        },
     },
     {
         "title": "Mother Mary Comes to Me",
         "author": "Arundhati Roy",
+        "cover_url": "https://covers.openlibrary.org/b/id/14981460-M.jpg",
         "summary": (
             "Arundhati Roy's memoir of her fraught, formative relationship with her mother, Mary Roy — "
             "a fierce, unconventional educator and activist in Kerala who fought a landmark legal battle "
@@ -210,10 +260,17 @@ SEED_BOOKS = [
             (7, "Reconciliation", "Moments of tenderness and understanding amid the conflict."),
             (8, "Legacy", "Roy reflects on what she inherited from a mother she both resisted and became."),
         ],
+        "verdict": {
+            "label": "worth_it",
+            "reason": (
+                "Roy brings the same precise, emotionally exacting prose from The God of Small Things to her own life; worth it for her fans and for anyone interested in a complicated mother-daughter story."
+            ),
+        },
     },
     {
         "title": "There Is No Place for Us: Working and Homeless in America",
         "author": "Brian Goldstone",
+        "cover_url": "https://images3.penguinrandomhouse.com/cover/9780593237168",
         "summary": (
             "An investigative account following several families in Atlanta who work full-time jobs yet "
             "remain homeless — sleeping in extended-stay motels, cars, or shelters — exposing what "
@@ -233,10 +290,17 @@ SEED_BOOKS = [
             (7, "Attempts at Escape", "Families' efforts to break the cycle, and what gets in the way."),
             (8, "A Broader Reckoning", "The book closes by connecting individual stories to national housing policy."),
         ],
+        "verdict": {
+            "label": "worth_it",
+            "reason": (
+                "Rigorously reported and humanizing without being sentimental -- one of the more important works of journalism on this list if you care about housing and labor policy in America."
+            ),
+        },
     },
     {
         "title": "Wild Thing: A Life of Paul Gauguin",
         "author": "Sue Prideaux",
+        "cover_url": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1732330844i/218569898.jpg",
         "summary": (
             "A biography of the French Post-Impressionist painter Paul Gauguin, tracing his path from a "
             "failed stockbroker to one of the most influential — and most controversial — artists of the "
@@ -257,6 +321,12 @@ SEED_BOOKS = [
             (7, "Legacy and Controversy", "Prideaux weighs Gauguin's artistic influence against the ethical questions raised by his life."),
             (8, "Final Years", "Gauguin's death in the Marquesas and the myth that grew up around him."),
         ],
+        "verdict": {
+            "label": "depends",
+            "reason": (
+                "A clear-eyed, well-researched biography that doesn't shy from Gauguin's troubling colonial conduct, but general readers not already interested in art history or Gauguin specifically may find its detail more than they need."
+            ),
+        },
     },
 ]
 
@@ -264,17 +334,33 @@ SEED_BOOKS = [
 def main():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
-    added, skipped = 0, 0
+    added, updated, skipped = 0, 0, 0
     try:
         for entry in SEED_BOOKS:
-            exists = (
+            existing = (
                 db.query(Book)
                 .filter(Book.title == entry["title"], Book.author == entry["author"])
                 .first()
             )
-            if exists:
-                print(f"skip (already present): {entry['title']!r} by {entry['author']}")
-                skipped += 1
+            if existing:
+                # Idempotent backfill: fills in fields added to this script
+                # after a book was first seeded, without touching anything
+                # else (in case the summary/chapters were hand-edited since).
+                changed = []
+                if not existing.verdict_label:
+                    existing.verdict_label = entry["verdict"]["label"]
+                    existing.verdict_reason = entry["verdict"]["reason"]
+                    changed.append("verdict")
+                if not existing.cover_url and entry.get("cover_url"):
+                    existing.cover_url = entry["cover_url"]
+                    changed.append("cover")
+                if changed:
+                    db.commit()
+                    print(f"updated {'+'.join(changed)} for existing book: {entry['title']!r}")
+                    updated += 1
+                else:
+                    print(f"skip (already present): {entry['title']!r} by {entry['author']}")
+                    skipped += 1
                 continue
 
             book = Book(
@@ -282,6 +368,9 @@ def main():
                 author=entry["author"],
                 summary=entry["summary"],
                 status="ready",
+                cover_url=entry.get("cover_url"),
+                verdict_label=entry["verdict"]["label"],
+                verdict_reason=entry["verdict"]["reason"],
             )
             db.add(book)
             db.flush()  # assigns book.id
@@ -301,7 +390,7 @@ def main():
     finally:
         db.close()
 
-    print(f"\nDone. {added} book(s) added, {skipped} skipped (already present).")
+    print(f"\nDone. {added} added, {updated} updated with backfilled fields, {skipped} already up to date.")
 
 
 if __name__ == "__main__":

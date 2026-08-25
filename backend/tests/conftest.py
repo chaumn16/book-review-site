@@ -9,7 +9,7 @@ os.environ.setdefault("ANTHROPIC_API_KEY", "test-key")
 import pytest
 from fastapi.testclient import TestClient
 
-from app import llm
+from app import covers, llm
 from app.database import Base, engine
 from app.main import app
 
@@ -29,8 +29,9 @@ def client():
 
 @pytest.fixture()
 def mock_llm(monkeypatch):
-    """Replace the real Anthropic call for book generation with a
-    deterministic fake so tests don't need network access or a real API key.
+    """Replace the real Anthropic call for book generation, and the real
+    Open Library cover lookup, with deterministic fakes so tests don't need
+    network access or a real API key.
 
     (Comment moderation is no longer part of `app.llm` -- see
     app/moderation.py and tests/test_moderation.py, which use a plain
@@ -44,7 +45,12 @@ def mock_llm(monkeypatch):
                 {"chapter_number": 1, "chapter_title": "The Beginning", "highlight": "Things start."},
                 {"chapter_number": 2, "chapter_title": "The Middle", "highlight": "Things happen."},
             ],
+            "verdict": {"label": "worth_it", "reason": "A solid, well-made example of its genre."},
         }
 
+    def fake_find_cover_url(title, author):
+        return f"https://covers.example.com/{title.lower().replace(' ', '-')}.jpg"
+
     monkeypatch.setattr(llm, "generate_book_content", fake_generate_book_content)
+    monkeypatch.setattr(covers, "find_cover_url", fake_find_cover_url)
     return llm

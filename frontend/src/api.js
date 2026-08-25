@@ -29,10 +29,10 @@ export const api = {
   regenerateBook: (id) => fetch(`${BASE}/books/${id}/regenerate`, { method: "POST" }).then(handle),
   deleteBook: (id) => fetch(`${BASE}/books/${id}`, { method: "DELETE" }).then(handle),
   listComments: (bookId) => fetch(`${BASE}/books/${bookId}/comments`).then(handle),
-  addComment: (bookId, author_name, body) =>
+  addComment: (bookId, author_name, body, rating = null) =>
     fetch(`${BASE}/books/${bookId}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ author_name, body }),
+      body: JSON.stringify({ author_name, body, rating }),
     }).then(handle),
 };

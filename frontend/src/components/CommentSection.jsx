@@ -1,10 +1,41 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
 
+const STAR_VALUES = [1, 2, 3, 4, 5];
+
+function RatingInput({ value, onChange }) {
+  return (
+    <div className="rating-input" role="radiogroup" aria-label="Your rating (optional)">
+      {STAR_VALUES.map((n) => (
+        <button
+          type="button"
+          key={n}
+          role="radio"
+          aria-checked={value === n}
+          aria-label={`${n} star${n === 1 ? "" : "s"}`}
+          className={n <= value ? "star-on" : "star-off"}
+          onClick={() => onChange(value === n ? 0 : n)}
+        >
+          {n <= value ? "★" : "☆"}
+        </button>
+      ))}
+      {value > 0 && (
+        <span className="rating-input-value">
+          {value}/5{" "}
+          <button type="button" className="rating-clear" onClick={() => onChange(0)}>
+            clear
+          </button>
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function CommentSection({ bookId }) {
   const [comments, setComments] = useState(null);
   const [name, setName] = useState("");
   const [body, setBody] = useState("");
+  const [rating, setRating] = useState(0);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
 
@@ -19,8 +50,9 @@ export default function CommentSection({ bookId }) {
     setBusy(true);
     setNotice(null);
     try {
-      await api.addComment(bookId, name, body);
+      await api.addComment(bookId, name, body, rating || null);
       setBody("");
+      setRating(0);
       setNotice({ type: "ok", text: "Comment posted." });
       refresh();
     } catch (err) {
@@ -50,6 +82,7 @@ export default function CommentSection({ bookId }) {
           required
           rows={3}
         />
+        <RatingInput value={rating} onChange={setRating} />
         {notice && <p className={`notice notice-${notice.type}`}>{notice.text}</p>}
         <button type="submit" disabled={busy}>
           {busy ? "Posting…" : "Post comment"}
@@ -66,6 +99,12 @@ export default function CommentSection({ bookId }) {
         {comments?.map((c) => (
           <li key={c.id}>
             <strong>{c.author_name}</strong>
+            {c.rating != null && (
+              <span className="comment-rating" aria-label={`Rated ${c.rating} out of 5`}>
+                {"★".repeat(c.rating)}
+                {"☆".repeat(5 - c.rating)}
+              </span>
+            )}
             <span className="comment-date">{new Date(c.created_at).toLocaleDateString()}</span>
             <p>{c.body}</p>
           </li>

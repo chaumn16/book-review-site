@@ -48,9 +48,12 @@ def generate_book_content(title: str, author: str) -> dict:
    - "chapter_number": integer, sequential starting at 1
    - "chapter_title": the chapter's title if known, otherwise a short descriptive label
    - "highlight": 2-4 sentence summary of what happens / what's covered in that chapter, no filler
+3. "verdict": your own honest, differentiated judgment of whether it's worth reading -- don't default to praising everything. An object with:
+   - "label": exactly one of "worth_it", "depends", or "skip"
+   - "reason": 1-2 sentences on who it's for (or not for) and why -- specific enough to be useful, not generic praise
 
 Respond with ONLY a single JSON object of the exact shape:
-{{"summary": "...", "chapters": [{{"chapter_number": 1, "chapter_title": "...", "highlight": "..."}}]}}
+{{"summary": "...", "chapters": [{{"chapter_number": 1, "chapter_title": "...", "highlight": "..."}}], "verdict": {{"label": "worth_it", "reason": "..."}}}}
 
 If you genuinely do not recognize this book at all, still respond with your best good-faith synthesis based on the title/author/genre conventions, and keep the summary honest about being a general overview rather than inventing specific plot points you're unsure of."""
 
@@ -63,4 +66,9 @@ If you genuinely do not recognize this book at all, still respond with your best
 
     if not parsed.get("summary") or not isinstance(parsed.get("chapters"), list):
         raise ValueError("Model response missing summary/chapters")
+
+    verdict = parsed.get("verdict") or {}
+    if verdict.get("label") not in ("worth_it", "depends", "skip"):
+        verdict = {"label": "depends", "reason": verdict.get("reason") or "No clear verdict was generated."}
+    parsed["verdict"] = verdict
     return parsed
