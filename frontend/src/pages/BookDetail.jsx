@@ -4,6 +4,7 @@ import { api } from "../api.js";
 import CommentSection from "../components/CommentSection.jsx";
 import { VerdictCallout } from "../components/VerdictBadge.jsx";
 import StarRating from "../components/StarRating.jsx";
+import BookCover from "../components/BookCover.jsx";
 
 export default function BookDetail() {
   const { id } = useParams();
@@ -35,15 +36,7 @@ export default function BookDetail() {
   return (
     <article className="book-detail">
       <div className="book-detail-header">
-        <div className="book-cover book-cover-large">
-          {book.cover_url ? (
-            <img src={book.cover_url} alt={`Cover of ${book.title}`} />
-          ) : (
-            <div className="book-cover-placeholder" aria-hidden="true">
-              📖
-            </div>
-          )}
-        </div>
+        <BookCover src={book.cover_url} title={book.title} large />
         <div>
           <h1>{book.title}</h1>
           <p className="author">by {book.author}</p>
