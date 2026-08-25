@@ -6,6 +6,48 @@ leave comments (with an optional star rating), which also post and appear immedi
 then get screened shortly after. Neither of those "shortly after" steps happens
 automatically — you run them yourself.
 
+## Architecture
+
+```mermaid
+flowchart TB
+    Reader(["📖 Reader"])
+    Owner(["🧑‍💻 You, the site owner"])
+
+    subgraph webapp ["Deployed web app"]
+        direction TB
+        FE["Frontend<br/>React + Vite"]
+        BE["Backend API<br/>FastAPI"]
+        DB[("Database<br/>SQLite (local) /<br/>Postgres (deployed)")]
+        FE -- "HTTP /api/*<br/>(instant: list, add, comment)" --> BE
+        BE -- "SQLAlchemy" --> DB
+    end
+
+    Reader -- browses --> FE
+    BE -- "cover art lookup<br/>(sync, free public API)" --> Covers(["Open Library /<br/>Google Books"])
+
+    subgraph scripts ["Your machine — run by hand, no scheduler"]
+        direction TB
+        GB["scripts/generate_books.py"]
+        RC["scripts/review_comments.py"]
+        CLI["claude CLI<br/>(your Claude login)"]
+        GB --> CLI
+        RC --> CLI
+    end
+
+    Owner -. "runs" .-> GB
+    Owner -. "runs" .-> RC
+    GB -- "pending books →<br/>summary, chapters, verdict" --> DB
+    RC -- "unreviewed comments →<br/>visible / removed" --> DB
+```
+
+The backend never calls an LLM itself — no `anthropic` SDK, no `ANTHROPIC_API_KEY`
+anywhere in this app. Adding a book or posting a comment only ever writes a row and
+returns immediately; the two scripts on the right are what actually do the LLM work
+(book generation, comment moderation), running under *your* Claude account whenever you
+choose to run them. See "How book generation works" and "How comment moderation works"
+below for the full detail, and [backend/scripts/README.md](backend/scripts/README.md)
+for exact usage.
+
 ## Stack
 
 - **Backend**: Python, FastAPI + SQLAlchemy + SQLite (zero setup), tested with `pytest`
