@@ -1,9 +1,9 @@
-"""Thin wrapper around the Anthropic API for the two LLM jobs this app needs:
-generating book content, and moderating comments.
+"""Thin wrapper around the Anthropic API for book-content generation.
 
-Kept as plain functions (not a class) so tests can monkeypatch
-`generate_book_content` / `moderate_comment` directly without touching the
-Anthropic client at all.
+Comment moderation is *not* here anymore -- see app/moderation.py, which
+shells out to the `claude` Code CLI under your own Claude account instead of
+calling this SDK/API-key path. This module stays scoped to the one job that
+still uses ANTHROPIC_API_KEY directly: generating book summaries/highlights.
 """
 
 import json
@@ -13,7 +13,6 @@ from typing import Any, Optional
 import anthropic
 
 SUMMARY_MODEL = "claude-sonnet-5"
-MODERATION_MODEL = "claude-haiku-4-5-20251001"
 
 _client: Optional[anthropic.Anthropic] = None
 
@@ -65,23 +64,3 @@ If you genuinely do not recognize this book at all, still respond with your best
     if not parsed.get("summary") or not isinstance(parsed.get("chapters"), list):
         raise ValueError("Model response missing summary/chapters")
     return parsed
-
-
-def moderate_comment(body: str) -> dict:
-    """Classify a comment for harmful/inappropriate content before it's
-    stored. Returns {"allowed": bool, "reason": str | None}.
-    """
-    prompt = f"""Classify the following user comment left on a book review site. Flag it if it contains: harassment, hate speech, threats, sexual content involving minors, doxxing/personal info, spam/scams, or severe profanity/abuse. Ordinary negative opinions, mild criticism, or strong-but-civil disagreement about the book are ALLOWED.
-
-Comment:
-\"\"\"{body}\"\"\"
-
-Respond with ONLY this JSON object: {{"allowed": true|false, "reason": "short reason if not allowed, else null"}}"""
-
-    response = get_client().messages.create(
-        model=MODERATION_MODEL,
-        max_tokens=200,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    parsed = _extract_json(_text_of(response))
-    return {"allowed": bool(parsed.get("allowed")), "reason": parsed.get("reason")}

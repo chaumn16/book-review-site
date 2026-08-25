@@ -24,11 +24,9 @@ export default function CommentSection({ bookId }) {
       setNotice({ type: "ok", text: "Comment posted." });
       refresh();
     } catch (err) {
-      if (err.status === 422) {
-        setNotice({ type: "blocked", text: `Comment removed by moderation: ${err.body?.reason || "flagged as inappropriate"}` });
-      } else {
-        setNotice({ type: "error", text: err.message });
-      }
+      // Posting itself no longer runs moderation -- it only fails for
+      // validation errors (empty fields) or the book not existing.
+      setNotice({ type: "error", text: err.message });
     } finally {
       setBusy(false);
     }
@@ -54,9 +52,12 @@ export default function CommentSection({ bookId }) {
         />
         {notice && <p className={`notice notice-${notice.type}`}>{notice.text}</p>}
         <button type="submit" disabled={busy}>
-          {busy ? "Checking…" : "Post comment"}
+          {busy ? "Posting…" : "Post comment"}
         </button>
-        <p className="hint">Every comment is screened by an LLM before it appears.</p>
+        <p className="hint">
+          Comments appear right away. They're screened shortly after by the site owner's
+          review process — anything that breaks the guidelines gets taken down.
+        </p>
       </form>
 
       {comments === null && <p>Loading comments…</p>}

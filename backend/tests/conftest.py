@@ -29,8 +29,12 @@ def client():
 
 @pytest.fixture()
 def mock_llm(monkeypatch):
-    """Replace the real Anthropic calls with deterministic fakes so tests
-    don't need network access or a real API key.
+    """Replace the real Anthropic call for book generation with a
+    deterministic fake so tests don't need network access or a real API key.
+
+    (Comment moderation is no longer part of `app.llm` -- see
+    app/moderation.py and tests/test_moderation.py, which use a plain
+    injected `classify` callable instead of monkeypatching anything.)
     """
 
     def fake_generate_book_content(title, author):
@@ -42,11 +46,5 @@ def mock_llm(monkeypatch):
             ],
         }
 
-    def fake_moderate_comment(body):
-        if "badword" in body.lower():
-            return {"allowed": False, "reason": "contains flagged language"}
-        return {"allowed": True, "reason": None}
-
     monkeypatch.setattr(llm, "generate_book_content", fake_generate_book_content)
-    monkeypatch.setattr(llm, "moderate_comment", fake_moderate_comment)
     return llm

@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -49,6 +49,9 @@ class Comment(Base):
     author_name = Column(String, nullable=False)
     body = Column(Text, nullable=False)
     status = Column(String, nullable=False, default="visible")  # visible | removed
+    # False until scripts/review_comments.py has classified it. Comments are
+    # shown while reviewed=False -- moderation happens async, after the fact.
+    reviewed = Column(Boolean, nullable=False, default=False)
     moderation_reason = Column(Text, nullable=True)
     created_at = Column(DateTime, default=utcnow, nullable=False)
 
