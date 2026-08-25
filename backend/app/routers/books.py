@@ -67,13 +67,16 @@ def _to_detail(db: Session, b: models.Book) -> schemas.BookDetail:
 
 
 @router.get("", response_model=list[schemas.BookListItem])
-def list_books(db: Session = Depends(get_db)):
-    # Only fully-generated books are ever listed publicly -- a book stuck in
-    # 'pending' or 'failed' is only reachable directly by id (e.g. to retry
-    # generation), not surfaced here.
+def list_books(status: str = "ready", db: Session = Depends(get_db)):
+    # Defaults to the public catalog (fully-generated books). Pass
+    # ?status=pending for the "just added" tab -- books waiting on
+    # scripts/generate_books.py. 'failed' isn't exposed here; those are
+    # only reachable directly by id, via the Retry button.
+    if status not in ("ready", "pending"):
+        raise HTTPException(status_code=400, detail="status must be 'ready' or 'pending'")
     books = (
         db.query(models.Book)
-        .filter(models.Book.status == "ready")
+        .filter(models.Book.status == status)
         .order_by(models.Book.created_at.desc())
         .all()
     )

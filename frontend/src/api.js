@@ -22,7 +22,7 @@ async function handle(res) {
 }
 
 export const api = {
-  listBooks: () => fetch(`${BASE}/books`).then(handle),
+  listBooks: (status = "ready") => fetch(`${BASE}/books?status=${status}`).then(handle),
   getBook: (id) => fetch(`${BASE}/books/${id}`).then(handle),
   addBook: (title, author) =>
     fetch(`${BASE}/books`, {

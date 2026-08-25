@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import Home from "./Home.jsx";
 import { api } from "../api.js";
@@ -98,5 +99,42 @@ describe("Home", () => {
     api.listBooks.mockRejectedValue(new Error("network down"));
     renderHome();
     expect(await screen.findByText(/failed to load books: network down/i)).toBeInTheDocument();
+  });
+
+  it("fetches the ready catalog by default", async () => {
+    api.listBooks.mockResolvedValue([]);
+    renderHome();
+    await screen.findByText(/no books yet/i);
+    expect(api.listBooks).toHaveBeenCalledWith("ready");
+  });
+
+  it("switches to the Just Added tab and fetches pending books", async () => {
+    api.listBooks
+      .mockResolvedValueOnce([{ id: 1, title: "Dune", author: "Frank Herbert", comment_count: 0 }]) // ready
+      .mockResolvedValueOnce([{ id: 2, title: "Still Cooking", author: "Someone", comment_count: 0 }]); // pending
+
+    const user = userEvent.setup();
+    renderHome();
+    await screen.findByText("Dune");
+
+    await user.click(screen.getByRole("tab", { name: /just added/i }));
+
+    expect(await screen.findByText("Still Cooking")).toBeInTheDocument();
+    expect(api.listBooks).toHaveBeenLastCalledWith("pending");
+    // Pending cards show a waiting notice instead of verdict/rating/comments.
+    expect(screen.getByText(/waiting to be generated/i)).toBeInTheDocument();
+    expect(screen.queryByText(/comment/)).not.toBeInTheDocument();
+  });
+
+  it("shows a pending-specific empty state on the Just Added tab", async () => {
+    api.listBooks.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+
+    const user = userEvent.setup();
+    renderHome();
+    await screen.findByText(/no books yet/i);
+
+    await user.click(screen.getByRole("tab", { name: /just added/i }));
+
+    expect(await screen.findByText(/nothing pending/i)).toBeInTheDocument();
   });
 });
